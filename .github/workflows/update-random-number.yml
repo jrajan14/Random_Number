@@ -4,36 +4,27 @@ on:
   schedule:
     - cron: '0 1,5,13,16,20,22 * * *'
     - cron: '30 23 * * *'
-    - cron: '18 00 * * *'
+    - cron: '32 00 * * *'
   workflow_dispatch:
 
 jobs:
-  update-number:
+  update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: Generate and save random number
+      - name: Make random number
         run: |
-          RANDOM_NUM=$((RANDOM % 1000 + 1))
-          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
-          
-          printf '{\n' > random_number.json
-          printf '  "random_number": %d,\n' "$RANDOM_NUM" >> random_number.json
-          printf '  "last_updated": "%s",\n' "$TIMESTAMP" >> random_number.json
-          printf '  "update_history": []\n' >> random_number.json
-          printf '}\n' >> random_number.json
-          
-          echo "Generated random number: $RANDOM_NUM"
+          echo $(($RANDOM % 1000 + 1)) > num.txt
+          echo "{\"random_number\": $(cat num.txt), \"last_updated\": \"$(date -u +'%Y-%m-%d %H:%M:%S UTC')\"}" > random_number.json
+          cat random_number.json
       
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "actions@github.com"
           git add random_number.json
-          git diff --staged --quiet || git commit -m "Auto-update random number"
+          git commit -m "Update random number ($(date -u +%Y-%m-%d))" || echo "No changes"
           git push
