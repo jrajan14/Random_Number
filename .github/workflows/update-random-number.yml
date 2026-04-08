@@ -2,12 +2,9 @@ name: Update Random Number
 
 on:
   schedule:
-    # Cron schedule for your specified times (UTC)
-    # Converted to UTC - adjust based on your timezone
-    - cron: '0 1,5,13,16,20,22 * * *'  # 1am, 5am, 1pm, 4pm, 8pm, 10pm
-    - cron: '57 23 * * *'                # 11:30pm
-    - cron: '0 10 * * *'                # 10am
-  # Allow manual trigger
+    - cron: '0 1,5,13,16,20,22 * * *'
+    - cron: '58 23 * * *'
+    - cron: '0 10 * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,30 +17,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Generate random number and update JSON
+      - name: Generate random number
+        id: random
         run: |
-          # Generate random number between 1 and 1000 (change as needed)
           RANDOM_NUM=$((RANDOM % 1000 + 1))
-          
-          # Get current timestamp
-          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
-          
-          # Create or update the JSON file
-          echo "{
-  \"random_number\": $RANDOM_NUM,
-  \"last_updated\": \"$TIMESTAMP\",
-  \"update_history\": [
-    {
-      \"timestamp\": \"$TIMESTAMP\",
-      \"number\": $RANDOM_NUM
-    }
-  ]
-}" > random_number.json
+          echo "number=$RANDOM_NUM" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+      
+      - name: Create JSON file
+        run: |
+          echo '{' > random_number.json
+          echo '  "random_number": ${{ steps.random.outputs.number }},' >> random_number.json
+          echo '  "last_updated": "${{ steps.random.outputs.timestamp }}",' >> random_number.json
+          echo '  "update_history": []' >> random_number.json
+          echo '}' >> random_number.json
       
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add random_number.json
-          git commit -m "Update random number at $(date '+%Y-%m-%d %H:%M:%S UTC')" || echo "No changes to commit"
+          git commit -m "Update random number to ${{ steps.random.outputs.number }}" || echo "No changes to commit"
           git push
