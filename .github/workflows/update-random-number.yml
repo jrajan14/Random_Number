@@ -3,7 +3,7 @@ name: Update Random Number
 on:
   schedule:
     - cron: '0 1,5,13,16,20,22 * * *'
-    - cron: '58 23 * * *'
+    - cron: '30 23 * * *'
     - cron: '0 10 * * *'
   workflow_dispatch:
 
@@ -17,25 +17,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Generate random number
-        id: random
+      - name: Generate and save random number
         run: |
           RANDOM_NUM=$((RANDOM % 1000 + 1))
-          echo "number=$RANDOM_NUM" >> $GITHUB_OUTPUT
-          echo "timestamp=$(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          printf '{\n' > random_number.json
+          printf '  "random_number": %d,\n' "$RANDOM_NUM" >> random_number.json
+          printf '  "last_updated": "%s",\n' "$TIMESTAMP" >> random_number.json
+          printf '  "update_history": []\n' >> random_number.json
+          printf '}\n' >> random_number.json
+          
+          echo "Generated random number: $RANDOM_NUM"
       
-      - name: Create JSON file
+      - name: Commit and push
         run: |
-          echo '{' > random_number.json
-          echo '  "random_number": ${{ steps.random.outputs.number }},' >> random_number.json
-          echo '  "last_updated": "${{ steps.random.outputs.timestamp }}",' >> random_number.json
-          echo '  "update_history": []' >> random_number.json
-          echo '}' >> random_number.json
-      
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add random_number.json
-          git commit -m "Update random number to ${{ steps.random.outputs.number }}" || echo "No changes to commit"
+          git diff --staged --quiet || git commit -m "Auto-update random number"
           git push
