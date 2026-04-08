@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 1,5,13,16,20,22 * * *'
     - cron: '30 23 * * *'
-    - cron: '44 19 * * *'
+    - cron: '06 20 * * *'
   workflow_dispatch:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history to avoid conflicts
+          fetch-depth: 0
       
       - name: Make random number
         run: |
@@ -25,14 +25,16 @@ jobs:
       
       - name: Commit and push
         run: |
-          # Pull latest changes first
-          git pull --rebase origin main
-          
-          # Configure git
           git config user.name "jrajan14"
           git config user.email "j.rajan14@yahoo.com"
           
-          # Commit and push
           git add random_number.json
-          git commit -m "Update random number ($(date -u +%Y-%m-%d))" || echo "No changes to commit"
-          git push origin main
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update random number ($(date -u +%Y-%m-%d))"
+            git pull --rebase origin main || echo "Pull failed, continuing..."
+            git push origin main
+          fi
