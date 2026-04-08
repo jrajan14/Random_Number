@@ -1,2 +1,2 @@
-# Random_Number
+# Random Number
 Random number generator online (Auto-updates)
