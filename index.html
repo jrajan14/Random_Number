@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .number-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+        }
+        
+        .random-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+        
+        .info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        .info-item {
+            margin: 10px 0;
+            color: #555;
+        }
+        
+        .label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .schedule {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 10px;
+            font-size: 0.85em;
+            color: #856404;
+        }
+        
+        .refresh-time {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 15px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Random Number Generator</h1>
+        <div class="subtitle">Updated automatically 9 times daily</div>
+        
+        <div class="number-container">
+            <div class="random-number" id="randomNumber">---</div>
+        </div>
+        
+        <div class="info">
+            <div class="info-item">
+                <span class="label">📅 Last Updated:</span>
+                <span id="lastUpdated">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="label">📊 Number Range:</span>
+                <span>1 - 1000</span>
+            </div>
+        </div>
+        
+        <div id="status" class="status loading">
+            ⏳ Loading latest random number...
+        </div>
+        
+        <button onclick="fetchRandomNumber()">🔄 Refresh Now</button>
+        
+        <div class="schedule">
+            <strong>⏰ Update Schedule (Your Timezone):</strong><br>
+            1:00 AM, 5:00 AM, 10:00 AM, 1:00 PM, 4:00 PM, 8:00 PM, 10:00 PM, 11:00 PM, 11:30 PM
+        </div>
+        
+        <div class="refresh-time">
+            Page auto-refreshes every 5 minutes
+        </div>
+    </div>
+    
+    <script>
+        // Function to fetch the random number from JSON file
+        async function fetchRandomNumber() {
+            const statusDiv = document.getElementById('status');
+            const randomNumberSpan = document.getElementById('randomNumber');
+            const lastUpdatedSpan = document.getElementById('lastUpdated');
+            
+            // Show loading state
+            statusDiv.className = 'status loading';
+            statusDiv.innerHTML = '⏳ Fetching latest random number...';
+            
+            // Add pulse animation to number
+            randomNumberSpan.classList.add('pulse');
+            
+            try {
+                // Add cache-busting timestamp to avoid caching
+                const timestamp = new Date().getTime();
+                const response = await fetch(`random_number.json?t=${timestamp}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Update the display
+                randomNumberSpan.textContent = data.random_number;
+                lastUpdatedSpan.textContent = data.last_updated;
+                
+                // Show success status
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '✅ Random number loaded successfully!';
+                
+                // Log to console
+                console.log('Random number updated:', data.random_number);
+                console.log('Last updated:', data.last_updated);
+                
+                // Auto-hide status after 3 seconds
+                setTimeout(() => {
+                    if (statusDiv.className === 'status success') {
+                        statusDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            statusDiv.style.opacity = '1';
+                            statusDiv.innerHTML = '✅ Ready';
+                        }, 300);
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error fetching random number:', error);
+                
+                // Show error status
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Error loading random number. Please check if the JSON file exists.';
+                
+                // Try to show fallback data
+                randomNumberSpan.textContent = '???';
+                lastUpdatedSpan.textContent = 'Unavailable';
+            } finally {
+                // Remove pulse animation after 500ms
+                setTimeout(() => {
+                    randomNumberSpan.classList.remove('pulse');
+                }, 500);
+            }
+        }
+        
+        // Auto-refresh the page every 5 minutes to get latest data
+        setInterval(() => {
+            fetchRandomNumber();
+        }, 300000); // 5 minutes
+        
+        // Also refresh the page data every minute to check for updates
+        setInterval(() => {
+            fetchRandomNumber();
+        }, 60000); // 1 minute
+        
+        // Initial load
+        fetchRandomNumber();
+        
+        // Add manual refresh on page visibility change (when user returns to tab)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                fetchRandomNumber();
+            }
+        });
+    </script>
+</body>
+</html>
