@@ -1,0 +1,49 @@
+name: Update Random Number
+
+on:
+  schedule:
+    # Cron schedule for your specified times (UTC)
+    # Converted to UTC - adjust based on your timezone
+    - cron: '0 1,5,13,16,20,22 * * *'  # 1am, 5am, 1pm, 4pm, 8pm, 10pm
+    - cron: '30 23 * * *'                # 11:30pm
+    - cron: '0 10 * * *'                # 10am (assuming 10pm was typo? You listed 10pm twice)
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  update-number:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Generate random number and update JSON
+        run: |
+          # Generate random number between 1 and 1000 (change as needed)
+          RANDOM_NUM=$((RANDOM % 1000 + 1))
+          
+          # Get current timestamp
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          # Create or update the JSON file
+          echo "{
+  \"random_number\": $RANDOM_NUM,
+  \"last_updated\": \"$TIMESTAMP\",
+  \"update_history\": [
+    {
+      \"timestamp\": \"$TIMESTAMP\",
+      \"number\": $RANDOM_NUM
+    }
+  ]
+}" > random_number.json
+      
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add random_number.json
+          git commit -m "Update random number at $(date '+%Y-%m-%d %H:%M:%S UTC')" || echo "No changes to commit"
+          git push
