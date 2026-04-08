@@ -5,8 +5,8 @@ on:
     # Cron schedule for your specified times (UTC)
     # Converted to UTC - adjust based on your timezone
     - cron: '0 1,5,13,16,20,22 * * *'  # 1am, 5am, 1pm, 4pm, 8pm, 10pm
-    - cron: '30 23 * * *'                # 11:30pm
-    - cron: '0 10 * * *'                # 10am (assuming 10pm was typo? You listed 10pm twice)
+    - cron: '57 23 * * *'                # 11:30pm
+    - cron: '0 10 * * *'                # 10am
   # Allow manual trigger
   workflow_dispatch:
 
