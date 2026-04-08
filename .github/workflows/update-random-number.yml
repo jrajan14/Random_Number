@@ -2,9 +2,27 @@ name: Update Random Number
 
 on:
   schedule:
-    - cron: '0 1,5,13,16,20,22 * * *'
+    # IST 2:00 AM = 20:30 UTC (previous day)
+    - cron: '30 20 * * *'
+    # IST 5:00 AM = 23:30 UTC (previous day)
     - cron: '30 23 * * *'
-    - cron: '18 20 * * *'
+    # IST 8:00 AM = 2:30 UTC
+    - cron: '30 2 * * *'
+    # IST 10:00 AM = 4:30 UTC
+    - cron: '30 4 * * *'
+    # IST 1:00 PM = 7:30 UTC
+    - cron: '30 7 * * *'
+    # IST 2:00 PM = 8:30 UTC
+    - cron: '30 8 * * *'
+    # IST 5:00 PM = 11:30 UTC
+    - cron: '30 11 * * *'
+    # IST 8:00 PM = 14:30 UTC
+    - cron: '30 14 * * *'
+    # IST 10:00 PM = 16:30 UTC
+    - cron: '30 16 * * *'
+    # IST 11:00 PM = 17:30 UTC
+    - cron: '30 17 * * *'
+  
   workflow_dispatch:
 
 jobs:
@@ -15,14 +33,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1  # Only get the latest commit, not history
+          fetch-depth: 1
       
       - name: Make random number and overwrite file
         run: |
           RANDOM_NUM=$((RANDOM % 1000 + 1))
           TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
           
-          # Create fresh JSON file (not merge, completely new)
           echo "{\"random_number\": $RANDOM_NUM, \"last_updated\": \"$TIMESTAMP\"}" > random_number.json
           
           echo "Generated: $RANDOM_NUM at $TIMESTAMP"
@@ -30,7 +47,7 @@ jobs:
       - name: Force push to main
         run: |
           git config user.name "jrajan14"
-          git config user.email "j.rajan14@yahoo.com"
+          git config.user.email "j.rajan14@yahoo.com"
           git add random_number.json
           git commit -m "Update random number" || exit 0
           git push origin main --force
