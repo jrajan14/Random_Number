@@ -2,26 +2,30 @@ name: Update Random Number
 
 on:
   schedule:
-    # IST 2:00 AM = 20:30 UTC (previous day)
-    - cron: '41 20 * * *'
-    # IST 5:00 AM = 23:30 UTC (previous day)
-    - cron: '30 23 * * *'
-    # IST 8:00 AM = 2:30 UTC
-    - cron: '30 2 * * *'
-    # IST 10:00 AM = 4:30 UTC
-    - cron: '30 4 * * *'
-    # IST 1:00 PM = 7:30 UTC
-    - cron: '30 7 * * *'
-    # IST 2:00 PM = 8:30 UTC
-    - cron: '30 8 * * *'
-    # IST 5:00 PM = 11:30 UTC
-    - cron: '30 11 * * *'
-    # IST 8:00 PM = 14:30 UTC
-    - cron: '30 14 * * *'
-    # IST 10:00 PM = 16:30 UTC
-    - cron: '30 16 * * *'
-    # IST 11:00 PM = 17:30 UTC
-    - cron: '30 17 * * *'
+    - cron: '07 0 * * *'
+    - cron: '42 1 * * *'
+    - cron: '15 2 * * *'
+    - cron: '53 3 * * *'
+    - cron: '21 4 * * *'
+    - cron: '36 5 * * *'
+    - cron: '08 6 * * *'
+    - cron: '49 7 * * *'
+    - cron: '17 8 * * *'
+    - cron: '58 9 * * *'
+    - cron: '26 10 * * *'
+    - cron: '41 11 * * *'
+    - cron: '12 12 * * *'
+    - cron: '55 13 * * *'
+    - cron: '19 14 * * *'
+    - cron: '47 15 * * *'
+    - cron: '03 16 * * *'
+    - cron: '34 17 * * *'
+    - cron: '22 18 * * *'
+    - cron: '50 19 * * *'
+    - cron: '11 20 * * *'
+    - cron: '39 21 * * *'
+    - cron: '05 22 * * *'
+    - cron: '44 23 * * *'
   
   workflow_dispatch:
 
