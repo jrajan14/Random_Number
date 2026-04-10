@@ -67,20 +67,25 @@ jobs:
         with:
           fetch-depth: 1
       
-      - name: Generate 16-digit random number
+      - name: Generate random 16-digit number using /dev/urandom
         run: |
-          # Generate 16-digit random number (1000000000000000 to 9999999999999999)
-          RANDOM_NUM=$((RANDOM % 9999999999999999 + 1000000000000000))
+          RANDOM_NUM=$(od -An -N8 -tu8 /dev/urandom | awk '{print $1}' | cut -c1-16)
+          if [ ${#RANDOM_NUM} -lt 16 ]; then
+              RANDOM_NUM="${RANDOM_NUM}$(od -An -N4 -tu4 /dev/urandom | awk '{print $1}' | cut -c1-$((16-${#RANDOM_NUM})))"
+          fi
+          RANDOM_NUM=$(echo $RANDOM_NUM | grep -o '[0-9]*' | cut -c1-16)
+          while [ ${RANDOM_NUM:0:1} -eq 0 ]; do
+              RANDOM_NUM=$(od -An -N8 -tu8 /dev/urandom | awk '{print $1}' | cut -c1-16)
+          done
           TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
-          
-          echo "{\"random_number\": $RANDOM_NUM, \"last_updated\": \"$TIMESTAMP\"}" > random_number.json
-          
-          echo "Generated 16-digit number: $RANDOM_NUM at $TIMESTAMP"
+          echo "{\"random_number\": $RANDOM_NUM, \"last_updated\": \"$TIMESTAMP\"}" > random_number.json          
+          echo "Generated 16-digit number: $RANDOM_NUM"
+          echo "Timestamp: $TIMESTAMP"
       
       - name: Force push to main
         run: |
           git config user.name "jrajan14"
           git config user.email "j.rajan14@yahoo.com"
           git add random_number.json
-          git commit -m "Update 16-digit random number" || exit 0
+          git commit -m "Update random number" || exit 0
           git push origin main --force
