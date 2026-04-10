@@ -55,7 +55,6 @@ on:
     - cron: '28 23 * * *'
     - cron: '41 23 * * *'
     - cron: '55 23 * * *'
-  
   workflow_dispatch:
 
 jobs:
@@ -68,19 +67,20 @@ jobs:
         with:
           fetch-depth: 1
       
-      - name: Make random number and overwrite file
+      - name: Generate 16-digit random number
         run: |
-          RANDOM_NUM=$((RANDOM % 1000 + 1))
+          # Generate 16-digit random number (1000000000000000 to 9999999999999999)
+          RANDOM_NUM=$((RANDOM % 9999999999999999 + 1000000000000000))
           TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
           
           echo "{\"random_number\": $RANDOM_NUM, \"last_updated\": \"$TIMESTAMP\"}" > random_number.json
           
-          echo "Generated: $RANDOM_NUM at $TIMESTAMP"
+          echo "Generated 16-digit number: $RANDOM_NUM at $TIMESTAMP"
       
       - name: Force push to main
         run: |
           git config user.name "jrajan14"
           git config user.email "j.rajan14@yahoo.com"
           git add random_number.json
-          git commit -m "Update random number" || exit 0
+          git commit -m "Update 16-digit random number" || exit 0
           git push origin main --force
