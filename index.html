@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Number Generator</title>
+    <title>16-Digit Random Number Generator</title>
     <style>
         * {
             margin: 0;
@@ -27,7 +27,7 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
-            max-width: 500px;
+            max-width: 650px;
             width: 100%;
         }
         
@@ -51,11 +51,12 @@
         }
         
         .random-number {
-            font-size: 4em;
+            font-size: 1.8em;
             font-weight: bold;
             color: white;
             font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            word-break: break-all;
         }
         
         .info {
@@ -122,8 +123,27 @@
             padding: 15px;
             background: #fff3cd;
             border-radius: 10px;
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: #856404;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .schedule h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        
+        .schedule-times {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            font-size: 0.8em;
+        }
+        
+        .schedule-times span {
+            display: inline-block;
+            padding: 2px;
         }
         
         .refresh-time {
@@ -141,12 +161,24 @@
         .pulse {
             animation: pulse 0.5s ease-in-out;
         }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .random-number {
+                font-size: 1.2em;
+            }
+            .schedule-times {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎲 Random Number Generator</h1>
-        <div class="subtitle">Updated automatically 9 times daily</div>
+        <h1>🎲 16-Digit Random Number</h1>
+        <div class="subtitle">Updated 50+ times daily</div>
         
         <div class="number-container">
             <div class="random-number" id="randomNumber">---</div>
@@ -159,7 +191,11 @@
             </div>
             <div class="info-item">
                 <span class="label">📊 Number Range:</span>
-                <span>1 - 1000</span>
+                <span>1,000,000,000,000,000 - 9,999,999,999,999,999</span>
+            </div>
+            <div class="info-item">
+                <span class="label">🔢 Digit Length:</span>
+                <span>16 digits</span>
             </div>
         </div>
         
@@ -170,8 +206,20 @@
         <button onclick="fetchRandomNumber()">🔄 Refresh Now</button>
         
         <div class="schedule">
-            <strong>⏰ Update Schedule (Your Timezone):</strong><br>
-            1:00 AM, 5:00 AM, 10:00 AM, 1:00 PM, 4:00 PM, 8:00 PM, 10:00 PM, 11:00 PM, 11:30 PM
+            <h3>⏰ Update Schedule (IST - Every ~15-30 minutes)</h3>
+            <div class="schedule-times">
+                <span>00:07</span> <span>00:41</span> <span>01:13</span> <span>01:52</span> <span>02:26</span>
+                <span>02:58</span> <span>03:11</span> <span>03:39</span> <span>04:05</span> <span>04:47</span>
+                <span>05:22</span> <span>05:56</span> <span>06:09</span> <span>06:33</span> <span>06:58</span>
+                <span>07:14</span> <span>07:49</span> <span>08:03</span> <span>08:37</span> <span>09:21</span>
+                <span>09:55</span> <span>10:08</span> <span>10:42</span> <span>11:17</span> <span>11:51</span>
+                <span>12:06</span> <span>12:38</span> <span>13:12</span> <span>13:46</span> <span>14:19</span>
+                <span>14:53</span> <span>15:04</span> <span>15:36</span> <span>16:10</span> <span>16:44</span>
+                <span>17:18</span> <span>17:48</span> <span>18:16</span> <span>18:50</span> <span>19:21</span>
+                <span>19:42</span> <span>20:27</span> <span>20:50</span> <span>21:03</span> <span>21:19</span>
+                <span>21:44</span> <span>22:08</span> <span>22:31</span> <span>22:57</span> <span>23:12</span>
+                <span>23:28</span> <span>23:41</span> <span>23:55</span>
+            </div>
         </div>
         
         <div class="refresh-time">
@@ -180,6 +228,11 @@
     </div>
     
     <script>
+        // Function to format 16-digit number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
         // Function to fetch the random number from JSON file
         async function fetchRandomNumber() {
             const statusDiv = document.getElementById('status');
@@ -188,7 +241,7 @@
             
             // Show loading state
             statusDiv.className = 'status loading';
-            statusDiv.innerHTML = '⏳ Fetching latest random number...';
+            statusDiv.innerHTML = '⏳ Fetching latest 16-digit random number...';
             
             // Add pulse animation to number
             randomNumberSpan.classList.add('pulse');
@@ -204,16 +257,17 @@
                 
                 const data = await response.json();
                 
-                // Update the display
-                randomNumberSpan.textContent = data.random_number;
+                // Update the display with formatted number
+                const formattedNumber = formatNumber(data.random_number);
+                randomNumberSpan.textContent = formattedNumber;
                 lastUpdatedSpan.textContent = data.last_updated;
                 
                 // Show success status
                 statusDiv.className = 'status success';
-                statusDiv.innerHTML = '✅ Random number loaded successfully!';
+                statusDiv.innerHTML = '✅ 16-digit random number loaded successfully!';
                 
                 // Log to console
-                console.log('Random number updated:', data.random_number);
+                console.log('16-digit random number:', data.random_number);
                 console.log('Last updated:', data.last_updated);
                 
                 // Auto-hide status after 3 seconds
@@ -232,7 +286,7 @@
                 
                 // Show error status
                 statusDiv.className = 'status error';
-                statusDiv.innerHTML = '❌ Error loading random number. Please check if the JSON file exists.';
+                statusDiv.innerHTML = ' Error loading random number. Please check if the JSON file exists.';
                 
                 // Try to show fallback data
                 randomNumberSpan.textContent = '???';
