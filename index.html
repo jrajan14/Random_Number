@@ -230,6 +230,8 @@
     <script>
         // Function to format 16-digit number with commas
         function formatNumber(num) {
+            const numStr = num.toString();
+            // Add spaces every 4 digits: xxxx xxxx xxxx xxxx
             return numStr.replace(/(\d{4})(?=\d)/g, '$1 ');
         }
         
