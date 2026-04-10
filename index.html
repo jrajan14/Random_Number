@@ -230,7 +230,7 @@
     <script>
         // Function to format 16-digit number with commas
         function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return numStr.replace(/(\d{4})(?=\d)/g, '$1 ');
         }
         
         // Function to fetch the random number from JSON file
